@@ -5,6 +5,7 @@ import numpy as np
 import os
 import numpy as np
 import scipy.ndimage
+import PIL
 from PIL import Image, ImageDraw
 from tqdm import tqdm
 from multiprocessing import Process
@@ -63,7 +64,7 @@ def image_align(img, face_landmarks, output_size=256,
   shrink = int(np.floor(qsize / output_size * 0.5))
   if shrink > 1:
     rsize = (int(np.rint(float(img.size[0]) / shrink)), int(np.rint(float(img.size[1]) / shrink)))
-    img = img.resize(rsize, Image.ANTIALIAS)
+    img = img.resize(rsize, PIL.Image.Resampling.LANCZOS) #Image.ANTIALIAS)
     quad /= shrink
     qsize /= shrink
 
@@ -109,15 +110,22 @@ def image_align(img, face_landmarks, output_size=256,
 
 
 
-image_root = '/home/ICT2000/dchang/DISFA_Data/DISFA/images/'
-aligned_image_root = '/home/ICT2000/dchang/DISFA_Data/DISFA/aligned_images_new/'
-landmark_root = '/home/ICT2000/dchang/DISFA_Data/DISFA/landmark/'
-annotated_image_root = '/home/ICT2000/dchang/DISFA_Data/DISFA/detect_images/'
+#image_root = '/home/ICT2000/dchang/DISFA_Data/DISFA/images/'
+data_root = r'C:\Users\sebas\Documents\PythonProjects\BA\asc-action-unit-bachelor-thesis\LibreFace\data\media'
+image_root = data_root + r'\images'
+aligned_image_root = data_root + r'\aligned_images_new'
+landmark_root = data_root + r'\landmark'
+annotated_image_root = data_root + r'\detect_images'
+mode_mask = 0o775
 for folder in os.listdir(image_root):
-  os.makedirs(os.path.join(annotated_image_root,folder),exist_ok=True)
-  os.makedirs(os.path.join(aligned_image_root,folder),exist_ok=True)
-  os.makedirs(os.path.join(landmark_root,folder),exist_ok=True)
-  for img in os.listdir(os.path.join(image_root,folder)):
+  os.makedirs(os.path.join(annotated_image_root,folder),exist_ok=True,mode=mode_mask)
+  os.makedirs(os.path.join(aligned_image_root,folder),exist_ok=True,mode=mode_mask)
+  os.makedirs(os.path.join(landmark_root,folder),exist_ok=True,mode=mode_mask)
+
+  path = os.path.join(image_root,folder)
+  dirlist = os.listdir(path)
+  print(dirlist)
+  for img in os.listdir(path):
     img_path = os.path.join(image_root,folder,img)
     land_path = os.path.join(landmark_root,folder,img).split('.')[0] + '.npy'
     aligned_img_path = os.path.join(aligned_image_root,folder,img)
